@@ -105,6 +105,25 @@ $env.CDPATH = [
     "~"
 ]
 
+# Variables
+# fnm (nvm like package manager built in rust)
+$env.PATH = ($env.PATH | prepend "/home/cloud/.local/share/fnm")
+load-env (fnm env --shell bash
+    | lines
+    | str replace 'export ' ''
+    | str replace -a '"' ''
+    | split column =
+    | rename name value
+    | where name != "FNM_ARCH" and name != "PATH"
+    | reduce -f {} {|it, acc| $acc | upsert $it.name $it.value }
+)
+
+$env.PATH = ($env.PATH
+    | split row (char esep)
+    | prepend $"($env.FNM_MULTISHELL_PATH)/bin"
+)
+
+
 # Load all the config files in the config directory
 const DEFAULT_INIT_FILE_PATH = ($nu.default-config-dir | path join init.nu)
 source $DEFAULT_INIT_FILE_PATH 
