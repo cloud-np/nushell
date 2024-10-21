@@ -127,27 +127,3 @@ $env.PATH = ($env.PATH
 # Load all the config files in the config directory
 const DEFAULT_INIT_FILE_PATH = ($nu.default-config-dir | path join init.nu)
 source $DEFAULT_INIT_FILE_PATH 
-
-# TODO: Move these
-def gl [
-    n?: int  # The number of git log entries to print
-] {
-    let nn = 10;
-    if ($n != null) { 
-        $nn = $n
-    }
-    # Without date manipulation
-    # git log --pretty=%h»¦«%s»¦«%aN»¦«%aE»¦«%aD -n $nn | lines | split column "»¦«" hash commit-message author email date
-    git log --pretty=%h»¦«%s»¦«%aN»¦«%aE»¦«%aD -n $nn | lines | split column "»¦«" hash commit-message author email date | upsert date {|d| $d.date | into datetime} | sort-by date | reverse
-}
-
-def gc [] {
-    rm -rf node_modules/@obg
-    rm -rf node_modules/@sbb2b
-    rm -rf ./apps/adaptive/package-lock.json
-    npm cache clear -f
-    rm -rf .\dist\
-    npm i
-    npm run postinstall
-    npm run postinstall  # Sometimes for linking one its not enough (:
-}

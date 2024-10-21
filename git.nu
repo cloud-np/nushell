@@ -311,3 +311,29 @@ export def git_tags [] {
   | flatten
   | rename tag subject
 }
+
+# gl = git log
+def gl [
+  n?: int  # The number of git log entries to print
+] {
+  let nn = 10;
+  if ($n != null) { 
+      $nn = $n
+  }
+  # Without date manipulation
+  # git log --pretty=%h»¦«%s»¦«%aN»¦«%aE»¦«%aD -n $nn | lines | split column "»¦«" hash commit-message author email date
+  git log --pretty=%h»¦«%s»¦«%aN»¦«%aE»¦«%aD -n $nn | lines | split column "»¦«" hash commit-message author email date | upsert date {|d| $d.date | into datetime} | sort-by date | reverse
+}
+
+# gc = git clean
+def gc [] {
+  rm -rf node_modules/@obg
+  rm -rf node_modules/@sbb2b
+  rm -rf ./apps/adaptive/package-lock.json # b2c repo
+  rm -rf ./package-lock.json # b2b repo
+  npm cache clear -f
+  rm -rf .\dist\
+  npm i
+  npm run postinstall
+  npm run postinstall  # Sometimes for linking one its not enough (:
+}
