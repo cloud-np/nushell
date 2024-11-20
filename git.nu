@@ -34,7 +34,7 @@ def commits_parse_line [line: string] {
   ( $line
   | split column "\u{0}"
   | rename ref author date subject
-  | upsert date {|| $in.date | into datetime }
+  | upsert date {|| $in | into datetime }
   )
 }
 
@@ -45,7 +45,7 @@ export def git_commits [--hash-format: string = "%h", --max-count: int] {
     $"--max-count=($max_count)",
   ]
 
-  ( GIT_PAGER=cat run-external "git" $args
+  ( GIT_PAGER=cat run-external "git" ...$args
   | lines
   | each { |line| commits_parse_line $line }
   | flatten
@@ -316,7 +316,7 @@ export def git_tags [] {
 def gl [
   n?: int  # The number of git log entries to print
 ] {
-  let nn = 10;
+  mut nn = 10;
   if ($n != null) { 
       $nn = $n
   }
