@@ -107,7 +107,7 @@ $env.CDPATH = [
 
 # Variables
 # fnm (nvm like package manager built in rust)
-$env.PATH = ($env.PATH | prepend "/home/cloud/.local/share/fnm")
+$env.Path = ($env.Path | prepend "/home/cloud/.local/share/fnm")
 load-env (fnm env --shell bash
     | lines
     | str replace 'export ' ''
@@ -118,7 +118,7 @@ load-env (fnm env --shell bash
     | reduce -f {} {|it, acc| $acc | upsert $it.name $it.value }
 )
 
-$env.PATH = ($env.PATH
+$env.Path = ($env.Path
     | split row (char esep)
     | prepend $"($env.FNM_MULTISHELL_PATH)/bin"
 )
