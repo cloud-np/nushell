@@ -75,7 +75,7 @@ export def git_files [] {
     "--format=%(path)%x00%(stage)%x00%(objecttype)%x00%(objectsize)%x00%(objectname)",
   ]
 
-  ( GIT_PAGER=cat run-external "git" $args
+  ( GIT_PAGER=cat run-external "git" ...$args
   | lines
   | each {|line| ls_files_parse $line }
   | flatten
@@ -232,7 +232,7 @@ export def git_status [ignored: bool] {
     $args
   }
 
-  ( run-external "git" $args
+  ( run-external "git" ...$args
   | lines
   | each { |line| parse_line $line }
   )
@@ -257,7 +257,7 @@ export def stash_list [] {
     "--pretty=format:%aI%x00%s",
   ]
 
-  ( GIT_PAGER=cat run-external "git" $args
+  ( GIT_PAGER=cat run-external "git" ...$args
   | lines
   | par-each { |line| stash_list_parse_line $line }
   | flatten
@@ -287,7 +287,7 @@ export def submodule_status [recursive: bool] {
 
   # TODO: Read .gitmodules and run git -C $submodule rev-parse HEAD to find
   # commits and be recursive
-  ( GIT_PAGER=cat run-external "git" $args
+  ( GIT_PAGER=cat run-external "git" ...$args
   | lines
   | par-each { |line| submodule_status_parse_line $line }
   | flatten
@@ -302,7 +302,7 @@ export def git_tags [] {
     "%(refname:strip=2)%00%(contents:subject)"
   ]
 
-  GIT_PAGER=cat run-external "git" $args
+  GIT_PAGER=cat run-external "git" ...$args
   | lines
   | each {||
     $in
