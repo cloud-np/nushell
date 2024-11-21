@@ -14,6 +14,35 @@ export def git_branches_and_remotes [] {
   | sort
 }
 
+# Git Commit no-verify
+export def gcnv [message: string = "wip"] {
+  git add .
+  git commit -m $message --no-verify
+}
+
+export def glo [] {
+  git log --oneline --graph --decorate --all
+}
+
+# Git Pull and Reset
+export def gpr [--branch: string = "default"] {
+  let target_branch = if ($branch == "default") {
+    if (branch_exists "master") { "master" } else { "main" }
+  } else {
+    $branch
+  }
+
+  git pull origin $target_branch
+  git reset --soft $'origin/($target_branch)'
+  git restore --staged .
+}
+
+def branch_exists [branch: string] {
+  git branch --list $branch
+  | str trim
+  | any { |line| $line == $branch }
+}
+
 export def git_comp_local_branches [] {
   git_local_branches
   | select name
@@ -109,7 +138,8 @@ export def git_remote_branches [] {
   | move remote --after name
 }
 
-def match [input, matchers: record] {
+# This one broke everything
+def record_match [input, matchers: record] {
     ( echo $matchers
     | get $input
     | do $in
@@ -125,7 +155,9 @@ def parse_line [line: string] {
   let line = ( $line | split row " " )
   let status = $line.0
 
-  match $status {
+  # TODO: This panics the main thread lol.
+  # Check why and how to fix it.
+  record_match $status {
     "?": {
       ( {}
       | insert name $line.1
@@ -224,19 +256,19 @@ def parse_states [states: string] {
   { staged: $staged, unstaged: $unstaged }
 }
 
-export def git_status [ignored: bool] {
-  let args = ["status", "--porcelain=2"]
-  let args = if ($ignored | into bool) {
-    ($args | append "--ignored")
-  } else {
-    $args
-  }
+# export def git_status [ignored: bool] {
+#   let args = ["status", "--porcelain=2"]
+#   let args = if ($ignored | into bool) {
+#     ($args | append "--ignored")
+#   } else {
+#     $args
+#   }
 
-  ( run-external "git" ...$args
-  | lines
-  | each { |line| parse_line $line }
-  )
-}
+#   ( run-external "git" ...$args
+#   | lines
+#   | each { |line| parse_line $line }
+#   )
+# }
 
 def stash_list_parse_line [line: string] {
   ( $line
@@ -312,28 +344,11 @@ export def git_tags [] {
   | rename tag subject
 }
 
-# gl = git log
+# Git Log
 def gl [
-  n?: int  # The number of git log entries to print
+  --n: int = 10 # n lines to log
 ] {
-  mut nn = 10;
-  if ($n != null) { 
-      $nn = $n
-  }
   # Without date manipulation
   # git log --pretty=%h»¦«%s»¦«%aN»¦«%aE»¦«%aD -n $nn | lines | split column "»¦«" hash commit-message author email date
-  git log --pretty=%h»¦«%s»¦«%aN»¦«%aE»¦«%aD -n $nn | lines | split column "»¦«" hash commit-message author email date | upsert date {|d| $d.date | into datetime} | sort-by date | reverse
-}
-
-# gc = git clean
-def gc [] {
-  rm -rf node_modules/@obg
-  rm -rf node_modules/@sbb2b
-  rm -rf ./apps/adaptive/package-lock.json # b2c repo
-  rm -rf ./package-lock.json # b2b repo
-  npm cache clear -f
-  rm -rf .\dist\
-  npm i
-  npm run postinstall
-  npm run postinstall  # Sometimes for linking one its not enough (:
+  git log --pretty=%h»¦«%s»¦«%aN»¦«%aE»¦«%aD -n $n | lines | split column "»¦«" hash commit-message author email date | upsert date {|d| $d.date | into datetime} | sort-by date | reverse
 }
