@@ -235,14 +235,14 @@ def parse_rename_path [paths: string] {
 # State marker
 def parse_state [state: string] {
   match $state {
-    ".": { "unmodified" },
-    "M": { "modified" },
-    "T": { "type changed" },
-    "A": { "added" },
-    "D": { "deleted" },
-    "R": { "renamed" },
-    "C": { "copied" },
-    "U": { "updated" }
+    "." => { "unmodified" },
+    "M" => { "modified" },
+    "T" => { "type changed" },
+    "A" => { "added" },
+    "D" => { "deleted" },
+    "R" => { "renamed" },
+    "C" => { "copied" },
+    "U" => { "updated" }
   }
 }
 
