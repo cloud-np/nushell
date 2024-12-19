@@ -108,6 +108,11 @@ $env.CDPATH = [
 # Variables
 # fnm (nvm like package manager built in rust)
 $env.PATH = ($env.PATH | prepend "/home/cloud/.local/share/fnm")
+# go
+$env.PATH = ($env.PATH | prepend "/home/cloud/go/bin/")
+# brew and nu
+$env.PATH = ($env.PATH | prepend "/home/linuxbrew/.linuxbrew/bin/")
+
 load-env (fnm env --shell bash
     | lines
     | str replace 'export ' ''
@@ -126,4 +131,4 @@ $env.PATH = ($env.PATH
 
 # Load all the config files in the config directory
 const DEFAULT_INIT_FILE_PATH = ($nu.default-config-dir | path join init.nu)
-source $DEFAULT_INIT_FILE_PATH 
+source $DEFAULT_INIT_FILE_PATH
