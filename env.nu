@@ -112,6 +112,10 @@ $env.PATH = ($env.PATH | prepend "/home/cloud/.local/share/fnm")
 $env.PATH = ($env.PATH | prepend "/home/cloud/go/bin/")
 # brew and nu
 $env.PATH = ($env.PATH | prepend "/home/linuxbrew/.linuxbrew/bin/")
+# Deno
+$env.PATH = ($env.PATH | prepend "/home/cloud/.deno/bin/deno")
+# turso
+$env.PATH = ($env.PATH | prepend "/home/cloud/.turso/turso")
 
 load-env (fnm env --shell bash
     | lines
