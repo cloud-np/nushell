@@ -1,9 +1,9 @@
 # Nushell Environment Config File
 #
-# version = "0.92.2"
+# version = "0.103.0"
 
 def create_left_prompt [] {
-    let dir = match (do --ignore-shell-errors { $env.PWD | path relative-to $nu.home-path }) {
+    let dir = match (do { $env.PWD | path relative-to $nu.home-path }) {
         null => $env.PWD
         '' => '~'
         $relative_pwd => ([~ $relative_pwd] | path join)
@@ -132,6 +132,8 @@ $env.PATH = ($env.PATH
     | prepend $"($env.FNM_MULTISHELL_PATH)/bin"
 )
 
+# Load environment variables from .env file
+load-env (open ~/.config/.env | lines | parse "{key}={value}" | transpose -r | into record)
 
 # Load all the config files in the config directory
 const DEFAULT_INIT_FILE_PATH = ($nu.default-config-dir | path join init.nu)
